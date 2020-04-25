@@ -62,6 +62,20 @@ class BookSearchTest {
     assertEquals(0, getBookList(actual).length());
   }
 
+  @Test
+  @DisplayName("결과 값이 있는 경우 bookList의 목록 출력")
+  public void testShouldReturnBookListWhenStatusIs200() throws JSONException {
+    // Given: 인풋값이 빈칸
+    setGivenMocking(RESULT_SUCCESS_SIZE);
+
+    // When: searchBook 메서드를 호출한다.
+    JSONObject actual = bookSearch.searchBook(mockCrawlingResult);
+
+    // Then: 그런 책은 없다고 말해줌
+    assertEquals("이진호 자서전", getBookList(actual).get(0));
+    assertEquals("신선호 자서전", getBookList(actual).get(1));
+  }
+
   private int getStatusCode(JSONObject jsonObject) throws JSONException {
     return jsonObject.getInt("status");
   }
