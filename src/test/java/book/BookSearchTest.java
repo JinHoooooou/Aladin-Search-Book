@@ -1,22 +1,30 @@
 package book;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.io.IOException;
-import java.util.List;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
+import org.jsoup.select.Evaluator.IsEmpty;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
-import static org.mockito.Mockito.*;
+import org.skyscreamer.jsonassert.JSONAssert;
+import org.springframework.boot.test.autoconfigure.json.JsonTest;
 
 class BookSearchTest {
 
   public static final String SUCCESS_URL = "https://www.aladin.co.kr/search/wsearchresult.aspx?SearchTarget=All&SearchWord=refactoring&x=0&y=0";
   public static final String FAIL_URL = "https://www.aladin.co.kr/search/wsearchresult.aspx?SearchTarget=All&SearchWord=&x=0&y=0";
+  private static final int RESULT_FAIL_SIZE = 0;
+  private static final int RESULT_SUCCESS_SIZE = 1;
   Document mockCrawlingResult = mock(Document.class);
   Elements mockSearch3Result = mock(Elements.class);
   BookSearch bookSearch = new BookSearch();
@@ -26,8 +34,7 @@ class BookSearchTest {
   public void testShouldReturn404AndNotFoundWhenNotExistBookInAladin()
       throws IOException, JSONException {
     // Given: 없는 책을 검색한다. (아무것도 입력안함)
-    when(mockCrawlingResult.select("div#Search3_Result")).thenReturn(mockSearch3Result);
-    when(mockSearch3Result.size()).thenReturn(0);
+    setGivenMocking(RESULT_FAIL_SIZE);
 
     // When: searchBook 메서드를 호출한다.
     JSONObject actual = bookSearch.searchBook(mockCrawlingResult);
@@ -42,8 +49,7 @@ class BookSearchTest {
   public void testShouldReturn200AndOKWhenExistBookInAladin()
       throws IOException, JSONException {
     // Given: 있는 책을 검색한다. ("refactoring")
-    when(mockCrawlingResult.select("div#Search3_Result")).thenReturn(mockSearch3Result);
-    when(mockSearch3Result.size()).thenReturn(0);
+    setGivenMocking(RESULT_SUCCESS_SIZE);
 
     // When: searchBook 메서드를 호출한다.
     JSONObject actual = bookSearch.searchBook(mockCrawlingResult);
@@ -53,11 +59,33 @@ class BookSearchTest {
     assertEquals(HttpStatusCode.OK.message, getMessage(actual));
   }
 
+  @Test
+  @DisplayName("결과 값이 없는 경우 bookList는 empty list이어야 한다")
+  public void testShouldReturnEmptyBookListWhenStatusIs404() throws JSONException {
+    // Given: 인풋값이 빈칸
+    setGivenMocking(RESULT_FAIL_SIZE);
+
+    // When: searchBook 메서드를 호출한다.
+    JSONObject actual = bookSearch.searchBook(mockCrawlingResult);
+
+    // Then: 그런 책은 없다고 말해줌
+    assertEquals(0, getBookList(actual).length());
+  }
+
   private int getStatusCode(JSONObject jsonObject) throws JSONException {
     return jsonObject.getInt("status");
   }
 
   private String getMessage(JSONObject jsonObject) throws JSONException {
     return jsonObject.getString("message");
+  }
+
+  private JSONArray getBookList(JSONObject jsonObject) throws JSONException {
+    return jsonObject.getJSONArray("bookList");
+  }
+
+  private void setGivenMocking(int searchResultSize) {
+    when(mockCrawlingResult.select("div#Search3_Result")).thenReturn(mockSearch3Result);
+    when(mockSearch3Result.size()).thenReturn(searchResultSize);
   }
 }
