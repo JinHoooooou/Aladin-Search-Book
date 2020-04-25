@@ -1,9 +1,6 @@
 package book;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -13,16 +10,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
-import org.jsoup.select.Evaluator.IsEmpty;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.skyscreamer.jsonassert.JSONAssert;
-import org.springframework.boot.test.autoconfigure.json.JsonTest;
 
 class BookSearchTest {
 
-  public static final String SUCCESS_URL = "https://www.aladin.co.kr/search/wsearchresult.aspx?SearchTarget=All&SearchWord=refactoring&x=0&y=0";
-  public static final String FAIL_URL = "https://www.aladin.co.kr/search/wsearchresult.aspx?SearchTarget=All&SearchWord=&x=0&y=0";
   private static final int RESULT_FAIL_SIZE = 0;
   private static final int RESULT_SUCCESS_SIZE = 1;
   Document mockCrawlingResult = mock(Document.class);
@@ -31,8 +23,7 @@ class BookSearchTest {
 
   @Test
   @DisplayName("알라딘 도서 검색창에 책을 검색했을때 결과가 나오지 않으면 status : 404, message : NOT_FOUND를 Json형태로 리턴한다.")
-  public void testShouldReturn404AndNotFoundWhenNotExistBookInAladin()
-      throws IOException, JSONException {
+  public void testShouldReturn404AndNotFoundWhenNotExistBookInAladin() throws JSONException {
     // Given: 없는 책을 검색한다. (아무것도 입력안함)
     setGivenMocking(RESULT_FAIL_SIZE);
 
@@ -46,8 +37,7 @@ class BookSearchTest {
 
   @Test
   @DisplayName("알라딘 도서 검색창에 책을 검색했을때 결과가 나오면 status : 200, message : OK를 Json형태로 리턴한다.")
-  public void testShouldReturn200AndOKWhenExistBookInAladin()
-      throws IOException, JSONException {
+  public void testShouldReturn200AndOKWhenExistBookInAladin() throws JSONException {
     // Given: 있는 책을 검색한다. ("refactoring")
     setGivenMocking(RESULT_SUCCESS_SIZE);
 
