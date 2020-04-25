@@ -17,7 +17,7 @@ public class BookSearch {
     }
 
     JSONArray bookList = new JSONArray();
-//    Elements books = elements.select("b.bo3");
+    Elements books = elements.select("b.bo3");
 //    for (int i = 0; i < books.size(); i++) {
 //      bookList.put(books.get(i).text());
 //    }
