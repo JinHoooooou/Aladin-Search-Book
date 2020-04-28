@@ -2,6 +2,7 @@ package book;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.jsoup.nodes.Document;
@@ -39,7 +40,7 @@ class BookSearchTest {
       throws JSONException {
     // Given: 있는 책을 검색한다. ("refactoring")
     when(mockCrawlingResult.select("div#Search3_Result")).thenReturn(mockSearch3Result);
-    when(mockSearch3Result.size()).thenReturn(0);
+    when(mockSearch3Result.size()).thenReturn(1);
 
     // When: searchBook 메서드를 호출한다.
     JSONObject actual = bookSearch.searchBook(mockCrawlingResult);
@@ -47,6 +48,25 @@ class BookSearchTest {
     // Then: 200 status와 OK message를 리턴한다.
     assertEquals(HttpStatusCode.OK.statusCode, getStatusCode(actual));
     assertEquals(HttpStatusCode.OK.message, getMessage(actual));
+  }
+
+  @Test
+  @DisplayName("검색 결과가 없다면 Json에 empty bookList를 추가한다.")
+  public void testShouldReturnEmptyBookListWhenSearchResultIsNotExist()
+      throws JSONException {
+    // Given: 실패하는 검색 결과 세팅 (아무것도 입력 안함)
+    when(mockCrawlingResult.select("div#Search3_Result")).thenReturn(mockSearch3Result);
+    when(mockSearch3Result.size()).thenReturn(0);
+
+    // When: searchBook 메서드를 호출한다.
+    JSONObject actual = bookSearch.searchBook(mockCrawlingResult);
+
+    // Then: actual의 "bookList"의 value는 empty list이다.
+    assertEquals(0, getBookList(actual).length());
+  }
+
+  private JSONArray getBookList(JSONObject jsonObject) throws JSONException {
+    return jsonObject.getJSONArray("bookList");
   }
 
   private int getStatusCode(JSONObject jsonObject) throws JSONException {
