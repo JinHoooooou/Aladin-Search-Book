@@ -59,6 +59,22 @@ class BookSearchTest {
     assertEquals(0, getBookList(actual).length());
   }
 
+  @Test
+  @DisplayName("검색 결과가 있다면 Json에 bookList를 추가한다.")
+  public void testShouldReturnBookListWhenSearchResultExist() throws JSONException {
+    // Given: 성공하는 검색 결과 세팅 ("refactoring")
+    setMockingGiven(1);
+
+    // When: searchBook 메서드를 호출한다.
+    JSONObject actual = bookSearch.searchBook(mockCrawlingResult);
+
+    // Then: actual의 "bookList"의 value는 3개이다.
+    assertEquals("리팩터링 2판 (리팩토링 개정판)", getBookList(actual).get(0));
+    assertEquals("리팩토링 자바스크립트 Refactoring JavaScript", getBookList(actual).get(1));
+    assertEquals("Refactoring: Improving the Design of Existing Code (Hardcover, 2)",
+        getBookList(actual).get(2));
+  }
+
   private void setMockingGiven(int search3_ResultSize) {
     when(mockCrawlingResult.select("div#Search3_Result")).thenReturn(mockSearch3Result);
     when(mockSearch3Result.size()).thenReturn(search3_ResultSize);
