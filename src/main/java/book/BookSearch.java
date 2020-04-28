@@ -4,6 +4,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 public class BookSearch {
@@ -14,6 +15,10 @@ public class BookSearch {
     if (elements.size() == 0) {
       return getJsonFormat(HttpStatusCode.NOT_FOUND.statusCode, HttpStatusCode.NOT_FOUND.message,
           bookList);
+    }
+    Elements booksTitle = elements.select("a.bo3 > b");
+    for (Element bookTitle : booksTitle) {
+      bookList.put(bookTitle.text());
     }
     return getJsonFormat(HttpStatusCode.OK.statusCode, HttpStatusCode.OK.message, bookList);
   }
