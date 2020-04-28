@@ -20,11 +20,9 @@ class BookSearchTest {
 
   @Test
   @DisplayName("알라딘 도서 검색창에 책을 검색했을때 결과가 나오지 않으면 status : 404, message : NOT_FOUND를 Json형태로 리턴한다.")
-  public void testShouldReturn404AndNotFoundWhenNotExistBookInAladin()
-      throws JSONException {
+  public void testShouldReturn404AndNotFoundWhenNotExistBookInAladin() throws JSONException {
     // Given: 없는 책을 검색한다. (아무것도 입력안함)
-    when(mockCrawlingResult.select("div#Search3_Result")).thenReturn(mockSearch3Result);
-    when(mockSearch3Result.size()).thenReturn(0);
+    setMockingGiven(0);
 
     // When: searchBook 메서드를 호출한다.
     JSONObject actual = bookSearch.searchBook(mockCrawlingResult);
@@ -36,11 +34,9 @@ class BookSearchTest {
 
   @Test
   @DisplayName("알라딘 도서 검색창에 책을 검색했을때 결과가 나오면 status : 200, message : OK를 Json형태로 리턴한다.")
-  public void testShouldReturn200AndOKWhenExistBookInAladin()
-      throws JSONException {
+  public void testShouldReturn200AndOKWhenExistBookInAladin() throws JSONException {
     // Given: 있는 책을 검색한다. ("refactoring")
-    when(mockCrawlingResult.select("div#Search3_Result")).thenReturn(mockSearch3Result);
-    when(mockSearch3Result.size()).thenReturn(1);
+    setMockingGiven(1);
 
     // When: searchBook 메서드를 호출한다.
     JSONObject actual = bookSearch.searchBook(mockCrawlingResult);
@@ -52,17 +48,20 @@ class BookSearchTest {
 
   @Test
   @DisplayName("검색 결과가 없다면 Json에 empty bookList를 추가한다.")
-  public void testShouldReturnEmptyBookListWhenSearchResultIsNotExist()
-      throws JSONException {
+  public void testShouldReturnEmptyBookListWhenSearchResultIsNotExist() throws JSONException {
     // Given: 실패하는 검색 결과 세팅 (아무것도 입력 안함)
-    when(mockCrawlingResult.select("div#Search3_Result")).thenReturn(mockSearch3Result);
-    when(mockSearch3Result.size()).thenReturn(0);
+    setMockingGiven(0);
 
     // When: searchBook 메서드를 호출한다.
     JSONObject actual = bookSearch.searchBook(mockCrawlingResult);
 
     // Then: actual의 "bookList"의 value는 empty list이다.
     assertEquals(0, getBookList(actual).length());
+  }
+
+  private void setMockingGiven(int search3_ResultSize) {
+    when(mockCrawlingResult.select("div#Search3_Result")).thenReturn(mockSearch3Result);
+    when(mockSearch3Result.size()).thenReturn(search3_ResultSize);
   }
 
   private JSONArray getBookList(JSONObject jsonObject) throws JSONException {
